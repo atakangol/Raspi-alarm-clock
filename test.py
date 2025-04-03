@@ -56,10 +56,22 @@ def display_images(images):
     
     pygame.quit()
 
+def read_images_from_file():
+    images = []
+    for i in range(8):  # Varsayılan olarak 8 resim okuyor
+        try:
+            image_path = f"images/{i}.jpg"
+            image = pygame.image.load(image_path)
+            images.append(image)
+        except Exception as e:
+            print(f"Error loading image from file {image_path}: {e}")
+    return images
+    
+
 urls = check_for_new_imgs()
 raw_images = read_images(urls)
 
-read_images()
+read_images_from_file()
 
 processed_images = process_images(raw_images)
 if processed_images:
