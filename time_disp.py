@@ -51,7 +51,62 @@ def add_timestamp_to_surface(surface):
     surface.blit(text_surface, text_rect)
     
     return surface
-# Your modified main loop would look like this:
+
+def add_text_to_surface( surface,  text, 
+    position=(0, 0),  color=(255, 255, 255),  font_size=30,    font_name=None, anchor="topleft", outline=False,  outline_color=(0, 0, 0),  outline_width=1
+    ):
+    """
+    Adds text to a pygame surface and returns the modified surface.
+    
+    Parameters:
+        surface (pygame.Surface): The surface to modify
+        text (str): Text to display
+        position (tuple): (x, y) coordinates
+        color (tuple): RGB color for text
+        font_size (int): Size of font
+        font_name (str): Name of font (None uses default)
+        anchor (str): Positioning anchor ('topleft', 'topright', 'center', etc.)
+        outline (bool): Whether to add outline
+        outline_color (tuple): RGB color for outline
+        outline_width (int): Outline thickness
+        
+    Returns:
+        pygame.Surface: Modified surface with text
+    """
+    # Create font object
+    try:
+        font = pygame.font.SysFont(font_name, font_size)
+    except:
+        font = pygame.font.Font(font_name, font_size)  # Fallback for custom fonts
+    
+    # Render the text
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    
+    # Set position based on anchor
+    if hasattr(text_rect, anchor):  # Check if anchor is valid
+        setattr(text_rect, anchor, position)
+    else:
+        text_rect.topleft = position  # Default to topleft
+    
+    # Add outline if requested
+    if outline:
+        # Create outline by rendering multiple times with offsets
+        outline_surface = font.render(text, True, outline_color)
+        for dx in range(-outline_width, outline_width + 1):
+            for dy in range(-outline_width, outline_width + 1):
+                if dx != 0 or dy != 0:  # Skip the center position
+                    outline_rect = text_rect.copy()
+                    outline_rect.x += dx
+                    outline_rect.y += dy
+                    surface.blit(outline_surface, outline_rect)
+    
+    # Blit the main text
+    surface.blit(text_surface, text_rect)
+    
+    return surface
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((480, 480))
@@ -72,9 +127,22 @@ def main():
         current_minute = datetime.datetime.now().minute
         
         # Check if minute has changed (to update timestamp)
-        img = add_timestamp_to_surface(images[index].copy())
+        #img = add_timestamp_to_surface(images[index].copy())
+        surface = add_text_to_surface(
+            images[index].copy(),
+           datetime.datetime.now().strftime("%H:%M"),
+            position=(300, 75),
+            font_size=50,
+            color=(255, 0, 0),
+            outline=True,
+            outline_color=(0, 0, 0),
+            outline_width=2
+        )
         
-        screen.blit(img, (0, 0))
+
+
+        
+        screen.blit(surface, (0, 0))
         pygame.display.flip()
         clock.tick(60)
     
